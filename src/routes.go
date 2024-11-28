@@ -1,7 +1,7 @@
 package src
 
 import (
-	"go-boilerplate-v2/src/controllers"
+	"dealls-dating-app/src/controllers"
 
 	"github.com/labstack/echo/v4"
 	"github.com/sarulabs/di"
@@ -10,11 +10,17 @@ import (
 func NewRoutes(app *echo.Echo, di di.Container) {
 	ctrl := controllers.NewController(di)
 
+	UserRoutes(app, ctrl)
+	SwipeRoutes(app, ctrl)
+}
+
+func UserRoutes(app *echo.Echo, ctrl *controllers.Controllers) {
 	app.POST("/register", ctrl.User.Register)
 	app.POST("/login", ctrl.User.Login)
+	app.POST("/verify-email", ctrl.User.VerifyEmail)
+}
 
-	// app.GET("/test", func(c echo.Context) error {
-	// 	userData := jwt.GetUserData(c)
-	// 	return c.JSON(200, userData)
-	// })
+func SwipeRoutes(app *echo.Echo, ctrl *controllers.Controllers) {
+	app.GET("/available-partner", ctrl.Swipe.GetAvailablePartner)
+	app.POST("/swipe-partner", ctrl.Swipe.SwipePartner)
 }

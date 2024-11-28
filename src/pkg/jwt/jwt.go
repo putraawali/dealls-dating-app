@@ -1,8 +1,8 @@
 package jwt
 
 import (
+	"dealls-dating-app/src/pkg/response"
 	"errors"
-	"go-boilerplate-v2/src/pkg/response"
 	"net/http"
 	"os"
 	"time"
@@ -44,11 +44,14 @@ func ConfigJwt() echojwt.Config {
 		SigningKey: []byte(secretKey),
 		Skipper: func(c echo.Context) bool {
 			url := c.Request().URL.Path
-			if url == "/register" || url == "/login" {
-				return true
+
+			skipper := map[string]bool{
+				"/register":     true,
+				"/login":        true,
+				"/verify-email": true,
 			}
 
-			return false
+			return skipper[url]
 		},
 		ContextKey: "user-data",
 		ErrorHandler: func(c echo.Context, _ error) error {

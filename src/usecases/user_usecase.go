@@ -2,15 +2,15 @@ package usecases
 
 import (
 	"context"
+	"dealls-dating-app/src/constants"
+	"dealls-dating-app/src/dtos"
+	"dealls-dating-app/src/models"
+	"dealls-dating-app/src/pkg/helpers"
+	"dealls-dating-app/src/pkg/jwt"
+	"dealls-dating-app/src/pkg/response"
+	"dealls-dating-app/src/repositories"
 	"errors"
 	"fmt"
-	"go-boilerplate-v2/src/constants"
-	"go-boilerplate-v2/src/dtos"
-	"go-boilerplate-v2/src/models"
-	"go-boilerplate-v2/src/pkg/helpers"
-	"go-boilerplate-v2/src/pkg/jwt"
-	"go-boilerplate-v2/src/pkg/response"
-	"go-boilerplate-v2/src/repositories"
 	"net/http"
 
 	"github.com/sarulabs/di"
@@ -19,6 +19,7 @@ import (
 type UserUsecase interface {
 	Register(ctx context.Context, data dtos.RegisterParam) (err error)
 	Login(ctx context.Context, data dtos.LoginParam) (response dtos.LoginResponse, err error)
+	VerifyEmail(ctx context.Context, data dtos.VerifyEmailParam) (err error)
 }
 
 type userUsecase struct {
@@ -34,13 +35,8 @@ func NewUserUsecase(di di.Container) UserUsecase {
 }
 
 func (u *userUsecase) Register(ctx context.Context, data dtos.RegisterParam) (err error) {
-	user := models.User{
-		Email:     data.Email,
-		Password:  data.Password,
-		Phone:     data.Phone,
-		FirstName: data.FirstName,
-		LastName:  data.LastName,
-	}
+	user := models.User{}
+	user.RegisterToModel(data)
 
 	userData, err := u.repo.User.FindByEmail(ctx, data.Email)
 	if err != nil {
@@ -80,4 +76,13 @@ func (u *userUsecase) Login(ctx context.Context, data dtos.LoginParam) (response
 	response.AccessToken = jwt.GenerateToken(user.UserID, user.Email)
 
 	return
+}
+
+func (u *userUsecase) VerifyEmail(ctx context.Context, data dtos.VerifyEmailParam) (err error) {
+	user, err := u.repo.User.FindByEmail(ctx, data.Email)
+	if err != nil {
+		return
+	}
+
+	return u.repo.User.VerifyEmail(ctx, user.Email)
 }

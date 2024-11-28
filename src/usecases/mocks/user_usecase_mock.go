@@ -11,7 +11,7 @@ package mock_usecases
 
 import (
 	context "context"
-	dtos "go-boilerplate-v2/src/dtos"
+	dtos "dealls-dating-app/src/dtos"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"
@@ -68,4 +68,18 @@ func (m *MockUserUsecase) Register(ctx context.Context, data dtos.RegisterParam)
 func (mr *MockUserUsecaseMockRecorder) Register(ctx, data any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Register", reflect.TypeOf((*MockUserUsecase)(nil).Register), ctx, data)
+}
+
+// VerifyEmail mocks base method.
+func (m *MockUserUsecase) VerifyEmail(ctx context.Context, data dtos.VerifyEmailParam) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyEmail", ctx, data)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// VerifyEmail indicates an expected call of VerifyEmail.
+func (mr *MockUserUsecaseMockRecorder) VerifyEmail(ctx, data any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyEmail", reflect.TypeOf((*MockUserUsecase)(nil).VerifyEmail), ctx, data)
 }

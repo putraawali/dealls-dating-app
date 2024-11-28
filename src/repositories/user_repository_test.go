@@ -2,11 +2,12 @@ package repositories_test
 
 import (
 	"context"
+	src_mock "dealls-dating-app/src/mocks"
+	"dealls-dating-app/src/models"
+	mock_connections "dealls-dating-app/src/pkg/connections/mocks"
+	"dealls-dating-app/src/repositories"
 	"errors"
-	src_mock "go-boilerplate-v2/src/mocks"
-	"go-boilerplate-v2/src/models"
-	mock_connections "go-boilerplate-v2/src/pkg/connections/mocks"
-	"go-boilerplate-v2/src/repositories"
+	"regexp"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -17,12 +18,21 @@ import (
 type userRepositoryTest struct {
 	suite.Suite
 	repoPostgres repositories.UserRepository
-	repoMysql    repositories.UserRepository
-	mysql        *gorm.DB
 	postgres     *gorm.DB
-	mockMysql    sqlmock.Sqlmock
 	mockPostgres sqlmock.Sqlmock
 	ctx          context.Context
+}
+
+var columnUser = []string{
+	"user_id",
+	"email",
+	"is_verified",
+	"sex",
+	"first_name",
+	"last_name",
+	"password",
+	"created_at",
+	"updated_at",
 }
 
 func TestUserRepository(t *testing.T) {
@@ -31,30 +41,24 @@ func TestUserRepository(t *testing.T) {
 
 // Before each test
 func (u *userRepositoryTest) SetupTest() {
-	u.mysql, u.mockMysql = mock_connections.NewMockMySQLConnection()
 	u.postgres, u.mockPostgres = mock_connections.NewMockPostgresConnection()
 
 	diPostgres := src_mock.NewMockDependencies(src_mock.Dependencies{
 		Postgres: u.postgres,
 	})
 
-	diMysql := src_mock.NewMockDependencies(src_mock.Dependencies{
-		Mysql: u.mysql,
-	})
-
 	u.repoPostgres = repositories.NewUserRepository(diPostgres)
-	u.repoMysql = repositories.NewUserRepository(diMysql)
 
 	u.ctx = context.WithValue(context.TODO(), "request-id", "213")
 }
 
-func (u *userRepositoryTest) TestInsertPostgres() {
-	u.Run("Success insert user as postgres", func() {
+func (u *userRepositoryTest) TestInsert() {
+	u.Run("Success insert user", func() {
 		data := models.User{
 			Email:     "email@mail.com",
+			Sex:       "male",
 			FirstName: "First Name",
 			LastName:  "Last Name",
-			Phone:     "08123123123",
 			Password:  "pw-123",
 		}
 
@@ -65,9 +69,10 @@ func (u *userRepositoryTest) TestInsertPostgres() {
 		u.mockPostgres.ExpectQuery(query).
 			WithArgs(
 				data.Email,
+				data.IsVerified,
+				data.Sex,
 				data.FirstName,
 				data.LastName,
-				data.Phone,
 				sqlmock.AnyArg(),
 				sqlmock.AnyArg(),
 				sqlmock.AnyArg(),
@@ -80,12 +85,12 @@ func (u *userRepositoryTest) TestInsertPostgres() {
 		u.Nil(err, "error should be nil")
 	})
 
-	u.Run("Failed insert user as postgres", func() {
+	u.Run("Failed insert user", func() {
 		data := models.User{
 			Email:     "email@mail.com",
 			FirstName: "First Name",
 			LastName:  "Last Name",
-			Phone:     "08123123123",
+			Sex:       "female",
 			Password:  "pw-123",
 		}
 
@@ -96,9 +101,10 @@ func (u *userRepositoryTest) TestInsertPostgres() {
 		u.mockPostgres.ExpectQuery(query).
 			WithArgs(
 				data.Email,
+				data.IsVerified,
+				data.Sex,
 				data.FirstName,
 				data.LastName,
-				data.Phone,
 				sqlmock.AnyArg(),
 				sqlmock.AnyArg(),
 				sqlmock.AnyArg(),
@@ -111,65 +117,113 @@ func (u *userRepositoryTest) TestInsertPostgres() {
 		u.NotNil(err, "error should be not nil")
 	})
 
-	u.Run("Success insert user as mysql", func() {
+	u.Run("Failed insert user wrong type of sex", func() {
 		data := models.User{
 			Email:     "email@mail.com",
 			FirstName: "First Name",
 			LastName:  "Last Name",
-			Phone:     "08123123123",
+			Sex:       "",
 			Password:  "pw-123",
 		}
 
-		query := "INSERT INTO `users` "
+		u.mockPostgres.ExpectBegin()
 
-		u.mockMysql.ExpectBegin()
+		u.mockPostgres.ExpectRollback()
 
-		u.mockMysql.ExpectExec(query).
+		err := u.repoPostgres.Insert(u.ctx, &data)
+		u.NotNil(err, "error should be not nil")
+	})
+}
+
+func (u *userRepositoryTest) TestFindByEmail() {
+	u.Run("Success find user", func() {
+		data := models.User{
+			Email:     "email@mail.com",
+			Sex:       "male",
+			FirstName: "First Name",
+			LastName:  "Last Name",
+			Password:  "pw-123",
+		}
+
+		query := "SELECT * FROM \"users\" "
+
+		u.mockPostgres.ExpectQuery(regexp.QuoteMeta(query)).
+			WithArgs(data.Email, 1).
+			WillReturnRows(
+				sqlmock.NewRows(columnUser).
+					AddRow(
+						data.UserID,
+						data.Email,
+						data.IsVerified,
+						data.Sex,
+						data.FirstName,
+						data.LastName,
+						data.Password,
+						data.CreatedAt,
+						data.UpdatedAt,
+					),
+			)
+
+		user, err := u.repoPostgres.FindByEmail(u.ctx, data.Email)
+		u.Nil(err, "error should be nil")
+		u.Equal(user, data, "User with data should be equal")
+	})
+
+	u.Run("Failed user not found", func() {
+		query := "SELECT * FROM \"users\" "
+
+		u.mockPostgres.ExpectQuery(regexp.QuoteMeta(query)).WillReturnError(gorm.ErrRecordNotFound)
+
+		user, err := u.repoPostgres.FindByEmail(u.ctx, "email@mail.com")
+		u.NotNil(err, "error should be nil")
+		u.Empty(user, "User should be empty")
+	})
+
+	u.Run("Failed error internal server error", func() {
+		query := "SELECT * FROM \"users\" "
+
+		u.mockPostgres.ExpectQuery(regexp.QuoteMeta(query)).WillReturnError(errors.New("mock error"))
+
+		user, err := u.repoPostgres.FindByEmail(u.ctx, "email@mail.com")
+		u.NotNil(err, "error should be nil")
+		u.Empty(user, "User should be empty")
+	})
+}
+
+func (u *userRepositoryTest) TestVerifyEmail() {
+	u.Run("Success verify email user", func() {
+		query := "UPDATE \"users\" SET "
+
+		u.mockPostgres.ExpectBegin()
+
+		u.mockPostgres.ExpectExec(query).
 			WithArgs(
-				data.Email,
-				data.FirstName,
-				data.LastName,
-				data.Phone,
+				true,
 				sqlmock.AnyArg(),
-				sqlmock.AnyArg(),
-				sqlmock.AnyArg(),
-			).
-			WillReturnResult(sqlmock.NewResult(1, 1))
+				"email@mail.com",
+			).WillReturnResult(sqlmock.NewResult(1, 1))
 
-		u.mockMysql.ExpectCommit()
+		u.mockPostgres.ExpectCommit()
 
-		err := u.repoMysql.Insert(u.ctx, &data)
+		err := u.repoPostgres.VerifyEmail(u.ctx, "email@mail.com")
 		u.Nil(err, "error should be nil")
 	})
 
-	u.Run("Failed insert user as mysql", func() {
-		data := models.User{
-			Email:     "email@mail.com",
-			FirstName: "First Name",
-			LastName:  "Last Name",
-			Phone:     "08123123123",
-			Password:  "pw-123",
-		}
+	u.Run("Failed verify email user", func() {
+		query := "UPDATE \"users\" SET "
 
-		query := "INSERT INTO `users` "
+		u.mockPostgres.ExpectBegin()
 
-		u.mockMysql.ExpectBegin()
-
-		u.mockMysql.ExpectExec(query).
+		u.mockPostgres.ExpectExec(query).
 			WithArgs(
-				data.Email,
-				data.FirstName,
-				data.LastName,
-				data.Phone,
+				true,
 				sqlmock.AnyArg(),
-				sqlmock.AnyArg(),
-				sqlmock.AnyArg(),
-			).
-			WillReturnError(errors.New("mock error"))
+				"email@mail.com",
+			).WillReturnError(errors.New("mock error"))
 
-		u.mockMysql.ExpectRollback()
+		u.mockPostgres.ExpectCommit()
 
-		err := u.repoMysql.Insert(u.ctx, &data)
+		err := u.repoPostgres.VerifyEmail(u.ctx, "email@mail.com")
 		u.NotNil(err, "error should be not nil")
 	})
 }

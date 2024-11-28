@@ -1,9 +1,9 @@
 package src_mock
 
 import (
-	"go-boilerplate-v2/src/constants"
-	"go-boilerplate-v2/src/pkg/response"
-	"go-boilerplate-v2/src/repositories"
+	"dealls-dating-app/src/constants"
+	"dealls-dating-app/src/pkg/response"
+	"dealls-dating-app/src/repositories"
 
 	"github.com/sarulabs/di"
 	"gorm.io/gorm"
@@ -29,12 +29,6 @@ func NewMockDependencies(d Dependencies) di.Container {
 			Name: constants.REPOSITORY,
 			Build: func(ctn di.Container) (interface{}, error) {
 				return d.Repository, nil
-			},
-		},
-		di.Def{
-			Name: constants.MYSQL_DB,
-			Build: func(ctn di.Container) (interface{}, error) {
-				return d.Mysql, nil
 			},
 		},
 		di.Def{

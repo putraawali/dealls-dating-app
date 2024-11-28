@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go-boilerplate-v2/src"
+	"dealls-dating-app/src"
 	"os"
 	"strconv"
 

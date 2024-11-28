@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"go-boilerplate-v2/src/constants"
-	"go-boilerplate-v2/src/dtos"
-	"go-boilerplate-v2/src/pkg/response"
-	"go-boilerplate-v2/src/usecases"
+	"dealls-dating-app/src/constants"
+	"dealls-dating-app/src/dtos"
+	"dealls-dating-app/src/pkg/response"
+	"dealls-dating-app/src/usecases"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -14,6 +14,7 @@ import (
 type UserController interface {
 	Register(echo.Context) error
 	Login(echo.Context) error
+	VerifyEmail(echo.Context) error
 }
 
 type userController struct {
@@ -92,4 +93,37 @@ func (u *userController) Login(c echo.Context) error {
 	}
 
 	return c.JSON(u.response.Send(http.StatusOK, data, nil))
+}
+
+func (u *userController) VerifyEmail(c echo.Context) error {
+	param := dtos.VerifyEmailParam{}
+
+	err := c.Bind(&param)
+	if err != nil {
+		err = u.response.NewError().
+			SetContext(c.Request().Context()).
+			SetDetail(err.Error()).
+			SetMessage(err).
+			SetStatusCode(http.StatusBadRequest)
+
+		return c.JSON(u.response.Send(0, nil, err))
+	}
+
+	err = param.Validate()
+	if err != nil {
+		err = u.response.NewError().
+			SetContext(c.Request().Context()).
+			SetDetail(err.Error()).
+			SetMessage(err).
+			SetStatusCode(http.StatusBadRequest)
+
+		return c.JSON(u.response.Send(0, nil, err))
+	}
+
+	err = u.uc.User.VerifyEmail(c.Request().Context(), param)
+	if err != nil {
+		return c.JSON(u.response.Send(0, nil, err))
+	}
+
+	return c.JSON(u.response.Send(http.StatusOK, nil, nil))
 }

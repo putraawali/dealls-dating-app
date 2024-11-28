@@ -11,7 +11,7 @@ package mock_repositories
 
 import (
 	context "context"
-	models "go-boilerplate-v2/src/models"
+	models "dealls-dating-app/src/models"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"
@@ -56,6 +56,36 @@ func (mr *MockUserRepositoryMockRecorder) FindByEmail(ctx, email any) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByEmail", reflect.TypeOf((*MockUserRepository)(nil).FindByEmail), ctx, email)
 }
 
+// FindByID mocks base method.
+func (m *MockUserRepository) FindByID(ctx context.Context, id int64) (models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByID", ctx, id)
+	ret0, _ := ret[0].(models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByID indicates an expected call of FindByID.
+func (mr *MockUserRepositoryMockRecorder) FindByID(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockUserRepository)(nil).FindByID), ctx, id)
+}
+
+// FindBySex mocks base method.
+func (m *MockUserRepository) FindBySex(ctx context.Context, sex string, limit, offset int) ([]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindBySex", ctx, sex, limit, offset)
+	ret0, _ := ret[0].([]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindBySex indicates an expected call of FindBySex.
+func (mr *MockUserRepositoryMockRecorder) FindBySex(ctx, sex, limit, offset any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindBySex", reflect.TypeOf((*MockUserRepository)(nil).FindBySex), ctx, sex, limit, offset)
+}
+
 // Insert mocks base method.
 func (m *MockUserRepository) Insert(ctx context.Context, user *models.User) error {
 	m.ctrl.T.Helper()
@@ -68,4 +98,18 @@ func (m *MockUserRepository) Insert(ctx context.Context, user *models.User) erro
 func (mr *MockUserRepositoryMockRecorder) Insert(ctx, user any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockUserRepository)(nil).Insert), ctx, user)
+}
+
+// VerifyEmail mocks base method.
+func (m *MockUserRepository) VerifyEmail(ctx context.Context, email string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyEmail", ctx, email)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// VerifyEmail indicates an expected call of VerifyEmail.
+func (mr *MockUserRepositoryMockRecorder) VerifyEmail(ctx, email any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyEmail", reflect.TypeOf((*MockUserRepository)(nil).VerifyEmail), ctx, email)
 }

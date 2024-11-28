@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"go-boilerplate-v2/src/pkg/jwt"
+	"dealls-dating-app/src/pkg/jwt"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"

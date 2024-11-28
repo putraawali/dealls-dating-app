@@ -1,7 +1,7 @@
 package src
 
 import (
-	"go-boilerplate-v2/src/pkg/middlewares"
+	"dealls-dating-app/src/pkg/middlewares"
 
 	"github.com/labstack/echo/v4"
 )

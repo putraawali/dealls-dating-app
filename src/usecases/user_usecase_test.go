@@ -1,8 +1,8 @@
 package usecases_test
 
 import (
-	"go-boilerplate-v2/src/repositories"
-	"go-boilerplate-v2/src/usecases"
+	"dealls-dating-app/src/repositories"
+	"dealls-dating-app/src/usecases"
 
 	"github.com/stretchr/testify/suite"
 )

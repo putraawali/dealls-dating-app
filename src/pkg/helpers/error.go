@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	"go-boilerplate-v2/src/pkg/response"
+	"dealls-dating-app/src/pkg/response"
 	"net/http"
 )
 
