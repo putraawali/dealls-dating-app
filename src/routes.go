@@ -12,6 +12,7 @@ func NewRoutes(app *echo.Echo, di di.Container) {
 
 	UserRoutes(app, ctrl)
 	SwipeRoutes(app, ctrl)
+	TransactionRoutes(app, ctrl)
 }
 
 func UserRoutes(app *echo.Echo, ctrl *controllers.Controllers) {
@@ -27,4 +28,5 @@ func SwipeRoutes(app *echo.Echo, ctrl *controllers.Controllers) {
 
 func TransactionRoutes(app *echo.Echo, ctrl *controllers.Controllers) {
 	app.POST("/request-payment-premium", ctrl.Transaction.InitTransaction)
+	app.POST("/accept-transaction", ctrl.Transaction.AcceptTransaction)
 }
