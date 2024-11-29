@@ -41,6 +41,20 @@ func (m *MockUserRepository) EXPECT() *MockUserRepositoryMockRecorder {
 	return m.recorder
 }
 
+// ActivatePremium mocks base method.
+func (m *MockUserRepository) ActivatePremium(ctx context.Context, userID int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ActivatePremium", ctx, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ActivatePremium indicates an expected call of ActivatePremium.
+func (mr *MockUserRepositoryMockRecorder) ActivatePremium(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActivatePremium", reflect.TypeOf((*MockUserRepository)(nil).ActivatePremium), ctx, userID)
+}
+
 // FindByEmail mocks base method.
 func (m *MockUserRepository) FindByEmail(ctx context.Context, email string) (models.User, error) {
 	m.ctrl.T.Helper()

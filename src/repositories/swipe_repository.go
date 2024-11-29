@@ -16,9 +16,6 @@ type SwipeRepository interface {
 	FindByUserIDAndTargetIDToday(ctx context.Context, userID, targetID int64) (data models.Swipe, err error)
 	Insert(ctx context.Context, swipe *models.Swipe) (err error)
 	CountSwipeUserToday(ctx context.Context, userID int64) (count int64, err error)
-	// FindByEmail(ctx context.Context, email string) (user models.User, err error)
-	// VerifyEmail(ctx context.Context, email string) (err error)
-	// FindByID(ctx context.Context, id int64) (user models.User, err error)
 }
 
 type swipeRepository struct {

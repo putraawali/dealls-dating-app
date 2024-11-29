@@ -8,7 +8,8 @@ import (
 
 func NewMockRepository(ctrl *gomock.Controller) *repositories.Repositories {
 	return &repositories.Repositories{
-		User:  NewMockUserRepository(ctrl),
-		Swipe: NewMockSwipeRepository(ctrl),
+		User:        NewMockUserRepository(ctrl),
+		Swipe:       NewMockSwipeRepository(ctrl),
+		Transaction: NewMockTransactionRepository(ctrl),
 	}
 }

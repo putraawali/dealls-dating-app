@@ -35,9 +35,6 @@ func NewUserUsecase(di di.Container) UserUsecase {
 }
 
 func (u *userUsecase) Register(ctx context.Context, data dtos.RegisterParam) (err error) {
-	user := models.User{}
-	user.RegisterToModel(data)
-
 	userData, err := u.repo.User.FindByEmail(ctx, data.Email)
 	if err != nil {
 		if !helpers.IsErrorNotFound(err) {
@@ -54,6 +51,9 @@ func (u *userUsecase) Register(ctx context.Context, data dtos.RegisterParam) (er
 
 		return
 	}
+
+	user := models.User{}
+	user.RegisterToModel(data)
 
 	return u.repo.User.Insert(ctx, &user)
 }

@@ -16,6 +16,7 @@ type User struct {
 	Sex        string    `json:"sex" gorm:"column:sex;type:varchar(6)"`
 	FirstName  string    `json:"first_name" gorm:"not null;column:first_name;type:varchar(255)"`
 	LastName   string    `json:"last_name" gorm:"type:varchar(255)"`
+	IsPremium  bool      `json:"is_premium" gorm:"column:is_premium;default:false"`
 	Password   string    `json:"-" gorm:"not null"`
 	CreatedAt  time.Time `json:"created_at" gorm:"column:created_at"`
 	UpdatedAt  time.Time `json:"updated_at" gorm:"column:updated_at"`

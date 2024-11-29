@@ -19,6 +19,7 @@ type UserRepository interface {
 	VerifyEmail(ctx context.Context, email string) (err error)
 	FindByID(ctx context.Context, id int64) (user models.User, err error)
 	FindBySex(ctx context.Context, sex string, limit, offset int) (users []models.User, err error)
+	ActivatePremium(ctx context.Context, userID int64) (err error)
 }
 
 type userRepository struct {
@@ -104,6 +105,18 @@ func (u *userRepository) FindBySex(ctx context.Context, sex string, limit, offse
 		Offset(offset).
 		Find(&users, "sex = ?", sex).
 		WithContext(ctx).Error; err != nil {
+		err = u.response.NewError().
+			SetContext(ctx).
+			SetDetail(err.Error()).
+			SetMessage(err).
+			SetStatusCode(http.StatusInternalServerError)
+	}
+
+	return
+}
+
+func (u *userRepository) ActivatePremium(ctx context.Context, userID int64) (err error) {
+	if err = u.db.Model(&models.User{}).Where("user_id = ?", userID).Update("is_premium", true).WithContext(ctx).Error; err != nil {
 		err = u.response.NewError().
 			SetContext(ctx).
 			SetDetail(err.Error()).

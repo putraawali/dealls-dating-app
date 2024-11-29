@@ -24,3 +24,7 @@ func SwipeRoutes(app *echo.Echo, ctrl *controllers.Controllers) {
 	app.GET("/available-partner", ctrl.Swipe.GetAvailablePartner)
 	app.POST("/swipe-partner", ctrl.Swipe.SwipePartner)
 }
+
+func TransactionRoutes(app *echo.Echo, ctrl *controllers.Controllers) {
+	app.POST("/request-payment-premium", ctrl.Transaction.InitTransaction)
+}

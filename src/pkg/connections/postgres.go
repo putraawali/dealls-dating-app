@@ -45,7 +45,7 @@ func NewPostgreConnection() (pg *gorm.DB, err error) {
 
 	fmt.Println("Success connected to database")
 
-	if err = pg.Debug().AutoMigrate(models.User{}, models.Swipe{}); err != nil {
+	if err = pg.Debug().AutoMigrate(models.User{}, models.Swipe{}, models.Transaction{}); err != nil {
 		return
 	}
 

@@ -93,19 +93,28 @@ func (s *swipeUsecase) GetAvailablePartner(ctx context.Context, userId int64) (d
 }
 
 func (s *swipeUsecase) SwipePartner(ctx context.Context, data dtos.SwipePartnerParams) (err error) {
-	count, err := s.repo.Swipe.CountSwipeUserToday(ctx, data.UserID)
+	user, err := s.repo.User.FindByID(ctx, data.UserID)
 	if err != nil {
 		return
 	}
 
-	if count > 10 {
-		msg := errors.New("anda telah mencapai batas maksimum swipe hari ini")
-		err = s.response.NewError().
-			SetContext(ctx).
-			SetDetail(msg.Error()).
-			SetMessage(msg).
-			SetStatusCode(http.StatusBadRequest)
-		return
+	// If user is premium, user doesn't have any swipe limit
+	if !user.IsPremium {
+		var count int64
+		count, err = s.repo.Swipe.CountSwipeUserToday(ctx, user.UserID)
+		if err != nil {
+			return
+		}
+
+		if count >= 10 {
+			msg := errors.New("anda telah mencapai batas maksimum swipe hari ini")
+			err = s.response.NewError().
+				SetContext(ctx).
+				SetDetail(msg.Error()).
+				SetMessage(msg).
+				SetStatusCode(http.StatusBadRequest)
+			return
+		}
 	}
 
 	currentSwipeData, _ := s.repo.Swipe.FindByUserIDAndTargetIDToday(ctx, data.UserID, data.TargetUserID)

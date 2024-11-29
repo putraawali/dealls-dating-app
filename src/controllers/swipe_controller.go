@@ -15,9 +15,6 @@ import (
 type SwipeController interface {
 	GetAvailablePartner(echo.Context) error
 	SwipePartner(echo.Context) error
-	// Register(echo.Context) error
-	// Login(echo.Context) error
-	// VerifyEmail(echo.Context) error
 }
 
 type swipeController struct {

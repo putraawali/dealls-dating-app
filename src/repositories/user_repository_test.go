@@ -47,7 +47,7 @@ func (u *userRepositoryTest) SetupTest() {
 		Postgres: u.postgres,
 	})
 
-	u.repoPostgres = repositories.NewUserRepository(diPostgres)
+	u.repoPostgres = repositories.NewUserRepository(diPostgres.Build())
 
 	u.ctx = context.WithValue(context.TODO(), "request-id", "213")
 }
